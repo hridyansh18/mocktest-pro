@@ -1,0 +1,1 @@
+import {Outlet} from 'react-router-dom';import Sidebar from '../components/Sidebar';import Topbar from '../components/Topbar';export default function AdminLayout(){return <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,_#172554_0,_#080d1c_35%)]"><Sidebar/><div className="lg:pl-72"><Topbar/><main className="p-4 md:p-6 lg:p-8"><Outlet/></main></div></div>}

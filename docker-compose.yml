@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: mocktest_pro
+      POSTGRES_USER: mocktest
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  server:
+    build: ./server
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://mocktest:${POSTGRES_PASSWORD}@postgres:5432/mocktest_pro
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ATTEMPT_SECRET: ${JWT_ATTEMPT_SECRET}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      PGSSL: "false"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: mocktest-pro-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_ATTEMPT_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
