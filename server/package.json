@@ -8,7 +8,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "migrate": "node src/db/runMigrations.js",
-    "test": "node --test"
+    "test": "node --test",
+    "bootstrap:admin": "node src/scripts/bootstrapAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

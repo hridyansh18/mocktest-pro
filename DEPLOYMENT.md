@@ -1,28 +1,31 @@
 # Production Deployment
 
-## Recommended split deployment
-- Frontend: Netlify using `client/netlify.toml`
-- API + Socket.IO: Render using `render.yaml`
-- PostgreSQL: managed PostgreSQL provider
+## 1. Render API + PostgreSQL
+Use `render.yaml` from the repository root. Set `DATABASE_URL`, three unique JWT secrets, and `ALLOWED_ORIGINS=https://<your-vercel-domain>` in Render. `PGSSL_MODE=require` is configured for a managed Render-style PostgreSQL connection; use `verify-full` only when the provider CA is installed and trusted by Node.
 
-## Database
-Run:
-1. `server/src/db/migrations/001_init_schema.sql`
-2. `server/src/db/migrations/002_security_hardening.sql`
+Render build: `npm ci && npm run migrate`
+Render start: `npm start`
+Health check: `/api/health`
 
-## API environment
-Set `NODE_ENV=production`, `DATABASE_URL`, three unique 64+ character JWT secrets, `ALLOWED_ORIGINS`, and `PGSSL=true` when required by the database provider.
+## 2. Create the first Super Admin
+Temporarily set `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD` (12+ chars), and optionally `ADMIN_BOOTSTRAP_NAME` on Render. In a Render shell run:
 
-## Frontend environment
-Set `VITE_API_URL` to the public API URL ending in `/api`.
+`npm run bootstrap:admin`
 
-## Verification
-From `server`: `npm ci && npm test`
-From `client`: `npm ci && npm run build`
+Then remove the bootstrap password environment variable.
 
-Then verify `/api/health`, admin login/logout, refresh rotation, test creation, student access, timer, autosave, reconnect, submission, results and live monitoring.
+## 3. Vercel frontend
+Set the Vercel Root Directory to `client` and add:
 
-## Docker alternative
-Copy `.env.production.example` to `.env`, fill real secrets, then run `docker compose up --build -d`.
+`VITE_API_URL=https://<your-render-service>.onrender.com/api`
 
-Do not deploy example secrets.
+Build command: `npm run build`
+Output directory: `dist`
+
+`client/vercel.json` provides the React Router SPA rewrite.
+
+## 4. Local verification
+Server: `cd server && npm ci && npm run migrate && npm test && npm start`
+Client: `cd client && npm ci && npm run build && npm run dev`
+
+Do not deploy `.env` files or example secrets.

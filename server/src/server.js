@@ -10,7 +10,7 @@ import { setSocketIO } from './services/liveMonitorService.js';
 const server = http.createServer(app);
 
 const io = new SocketIOServer(server, {
-  cors: { origin: env.allowedOrigins, credentials: true }
+  cors: { origin: env.socketCorsOrigins, credentials: true }
 });
 configureLiveMonitorSocket(io);
 setSocketIO(io);
@@ -20,7 +20,7 @@ const start = async () => {
     await pool.query('SELECT 1'); // fail fast if DB is unreachable
     logger.info('Database connection verified');
 
-    server.listen(env.port, () => {
+    server.listen(env.port, '0.0.0.0', () => {
       logger.info(`MockTest Pro API listening on port ${env.port} [${env.nodeEnv}]`);
     });
   } catch (err) {

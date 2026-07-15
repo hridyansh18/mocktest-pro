@@ -32,11 +32,18 @@ app.use(
 
 // --- CORS: only the configured client origin may call this API with credentials ---
 const corsOptions = {
-  origin: 'https://mocktest-pro-nine.vercel.app',
-  credentials: true
+  origin(origin, callback) {
+    // Requests without Origin are server-to-server/health checks.
+    if (!origin || env.allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id']
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // --- Body parsing ---
 app.use(express.json({ limit: '2mb' })); // 2mb accommodates CSV bulk-import payloads

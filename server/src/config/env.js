@@ -29,7 +29,8 @@ export const env = {
     .split(',').map((value) => value.trim()).filter(Boolean),
 
   databaseUrl: process.env.DATABASE_URL,
-  pgSsl: process.env.PGSSL === 'true',
+  pgSslMode: process.env.PGSSL_MODE || (process.env.PGSSL === 'true' ? 'require' : 'disable'),
+  dbPoolMax: parseInt(process.env.DB_POOL_MAX, 10) || 10,
 
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET,
@@ -47,7 +48,8 @@ export const env = {
     authMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS, 10) || 10
   },
 
-  socketCorsOrigin: process.env.SOCKET_CORS_ORIGIN || 'http://localhost:5173',
+  socketCorsOrigins: (process.env.SOCKET_CORS_ORIGIN || process.env.ALLOWED_ORIGINS || process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+    .split(',').map((value) => value.trim()).filter(Boolean),
   testCodePrefixDefault: process.env.TEST_CODE_PREFIX_DEFAULT || 'TST',
   logLevel: process.env.LOG_LEVEL || 'info'
 };

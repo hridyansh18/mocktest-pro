@@ -3,14 +3,16 @@ services:
     name: mocktest-pro-api
     runtime: node
     rootDir: server
-    buildCommand: npm ci
-    startCommand: node src/server.js
+    buildCommand: npm ci && npm run migrate
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
         sync: false
+      - key: PGSSL_MODE
+        value: require
       - key: JWT_ACCESS_SECRET
         sync: false
       - key: JWT_REFRESH_SECRET

@@ -1,8 +1,5 @@
 import axios from "axios";
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://mocktest-pro-na4k.onrender.com/api";
+import { API_BASE_URL } from "./apiBaseUrl";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
