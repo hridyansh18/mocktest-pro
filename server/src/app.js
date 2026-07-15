@@ -33,13 +33,14 @@ app.use(
 // --- CORS: only the configured client origin may call this API with credentials ---
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || env.allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error('Origin not allowed by CORS'));
-    },
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://mocktest-pro-nine.vercel.app",
+    ],
     credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
