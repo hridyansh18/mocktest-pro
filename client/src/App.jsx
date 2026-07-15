@@ -1,62 +1,85 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
+// Admin Auth
+import Login from "./pages/auth/Login";
 
-import Dashboard from './pages/admin/Dashboard';
-import Tests from './pages/admin/Tests';
-import CreateTest from './pages/admin/CreateTest';
-import QuestionManager from './pages/admin/QuestionManager';
-import Results from './pages/admin/Results';
-import Attempts from './pages/admin/Attempts';
-import Leaderboard from './pages/admin/Leaderboard';
-import SecurityLogs from './pages/admin/SecurityLogs';
-import Students from './pages/admin/Students';
-import Settings from './pages/admin/Settings';
+// Admin Pages
+import Dashboard from "./pages/admin/Dashboard";
+import Tests from "./pages/admin/Tests";
+import CreateTest from "./pages/admin/CreateTest";
+import QuestionManager from "./pages/admin/QuestionManager";
+import Results from "./pages/admin/Results";
+import Attempts from "./pages/admin/Attempts";
+import Leaderboard from "./pages/admin/Leaderboard";
+import SecurityLogs from "./pages/admin/SecurityLogs";
+import Students from "./pages/admin/Students";
+import Settings from "./pages/admin/Settings";
 
-import AdminLayout from './layouts/AdminLayout';
+// Layout
+import AdminLayout from "./layouts/AdminLayout";
 
-import TestAccess from './pages/student/TestAccess';
-import Instructions from './pages/student/Instructions';
-import Exam from './pages/student/Exam';
-import Result from './pages/student/Result';
+// Student Pages
+import TestAccess from "./pages/student/TestAccess";
+import Instructions from "./pages/student/Instructions";
+import Exam from "./pages/student/Exam";
+import Result from "./pages/student/Result";
+
+// ================================
+// ADMIN AUTH GUARD
+// ================================
 
 const Guard = ({ children }) => {
   const { admin } = useAuth();
 
-  return admin ? (
-    children
-  ) : (
-    <Navigate to="/login" replace />
-  );
+  if (!admin) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 };
+
+// ================================
+// SUPER ADMIN GUARD
+// ================================
 
 const SuperAdminGuard = ({ children }) => {
   const { admin } = useAuth();
 
-  const adminRole =
-    admin?.role || admin?.adminRole;
+  if (!admin) {
+    return <Navigate to="/login" replace />;
+  }
 
-  return adminRole === 'super_admin' ? (
-    children
-  ) : (
-    <Navigate to="/admin" replace />
-  );
+  const adminRole = admin?.role || admin?.adminRole;
+
+  if (adminRole !== "super_admin") {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return children;
 };
+
+// ================================
+// APP ROUTES
+// ================================
 
 export default function App() {
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={<Login />}
-      />
+      {/* =========================
+          AUTH ROUTES
+      ========================= */}
+
+      <Route path="/login" element={<Login />} />
 
       <Route
         path="/register"
         element={<Navigate to="/login" replace />}
       />
+
+      {/* =========================
+          STUDENT ROUTES
+      ========================= */}
 
       <Route
         path="/test/:testCodeId"
@@ -78,6 +101,10 @@ export default function App() {
         element={<Result />}
       />
 
+      {/* =========================
+          ADMIN ROUTES
+      ========================= */}
+
       <Route
         path="/admin"
         element={
@@ -86,15 +113,9 @@ export default function App() {
           </Guard>
         }
       >
-        <Route
-          index
-          element={<Dashboard />}
-        />
+        <Route index element={<Dashboard />} />
 
-        <Route
-          path="tests"
-          element={<Tests />}
-        />
+        <Route path="tests" element={<Tests />} />
 
         <Route
           path="create-test"
@@ -146,11 +167,22 @@ export default function App() {
         />
       </Route>
 
+      {/* =========================
+          DEFAULT ROUTE
+      ========================= */}
+
+      <Route
+        path="/"
+        element={<Navigate to="/admin" replace />}
+      />
+
+      {/* =========================
+          404 FALLBACK
+      ========================= */}
+
       <Route
         path="*"
-        element={
-          <Navigate to="/admin" replace />
-        }
+        element={<Navigate to="/admin" replace />}
       />
     </Routes>
   );
