@@ -36,7 +36,6 @@ app.use(cors({
   credentials: true
 }));
 
-app.options("*", cors());
 
 // --- Body parsing ---
 app.use(express.json({ limit: '2mb' })); // 2mb accommodates CSV bulk-import payloads
