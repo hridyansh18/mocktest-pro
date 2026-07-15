@@ -1,9 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api'
+  baseURL: 'https://mocktest-pro-na4k.onrender.com/api'
 });
-
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('mtp_access');
@@ -17,7 +16,6 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-
   async (err) => {
     const original = err.config;
 
@@ -52,7 +50,6 @@ api.interceptors.response.use(
           `Bearer ${data.data.accessToken}`;
 
         return api(original);
-
       } catch {
         localStorage.removeItem('mtp_access');
         localStorage.removeItem('mtp_refresh');
