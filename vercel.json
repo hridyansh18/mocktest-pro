@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://mocktest-pro-na4k.onrender.com/api/:path*"
+    }
+  ]
+}
