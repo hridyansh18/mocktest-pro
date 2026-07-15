@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://mocktest-pro-na4k.onrender.com/api";
+
 const api = axios.create({
-  baseURL: "https://mocktest-pro-na4k.onrender.com/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -19,7 +23,9 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 // Handle Token Refresh
@@ -31,46 +37,59 @@ api.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
       localStorage.getItem("mtp_refresh")
     ) {
       originalRequest._retry = true;
 
       try {
+        const refreshToken = localStorage.getItem("mtp_refresh");
+
         const { data } = await axios.post(
-          "https://mocktest-pro-na4k.onrender.com/api/auth/refresh",
+          `${API_BASE_URL}/auth/refresh`,
           {
-            refreshToken: localStorage.getItem("mtp_refresh"),
+            refreshToken,
           },
           {
             withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
         );
 
-        localStorage.setItem(
-          "mtp_access",
-          data.data.accessToken
-        );
+        const accessToken = data?.data?.accessToken;
+        const newRefreshToken = data?.data?.refreshToken;
 
-        if (data.data.refreshToken) {
+        if (!accessToken) {
+          throw new Error("Access token not received");
+        }
+
+        localStorage.setItem("mtp_access", accessToken);
+
+        if (newRefreshToken) {
           localStorage.setItem(
             "mtp_refresh",
-            data.data.refreshToken
+            newRefreshToken
           );
         }
 
+        originalRequest.headers =
+          originalRequest.headers || {};
+
         originalRequest.headers.Authorization =
-          `Bearer ${data.data.accessToken}`;
+          `Bearer ${accessToken}`;
 
         return api(originalRequest);
-      } catch (err) {
+      } catch (refreshError) {
         localStorage.removeItem("mtp_access");
         localStorage.removeItem("mtp_refresh");
         localStorage.removeItem("mtp_admin");
 
         window.location.href = "/login";
 
-        return Promise.reject(err);
+        return Promise.reject(refreshError);
       }
     }
 
